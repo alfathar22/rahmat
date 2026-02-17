@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Marketing Hub - Property Hub</title>
+    <style>
+        :root {
+            --primary: #27ae60;
+            --secondary: #2c3e50;
+            --accent: #3498db;
+            --light: #f4f7f6;
+            --danger: #e74c3c;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); color: var(--secondary); }
+
+        nav { background: var(--secondary); padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; }
+        nav .logo { font-size: 22px; font-weight: bold; color: var(--primary); }
+        nav .menu button { background: none; border: 1px solid var(--primary); color: white; padding: 8px 15px; cursor: pointer; border-radius: 5px; margin-left: 10px; }
+
+        section { display: none; padding: 40px 50px; animation: fadeIn 0.5s; }
+        section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .container { max-width: 1100px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; margin-bottom: 15px; }
+        label { font-weight: 600; margin-bottom: 5px; font-size: 14px; }
+        input, select { padding: 12px; border: 1px solid #ccc; border-radius: 8px; }
+        
+        .btn-send { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 10px; }
+        
+        .preview-container { width: 100%; margin-bottom: 20px; text-align: center; }
+        .img-preview { width: 100%; max-height: 300px; object-fit: cover; border-radius: 12px; display: none; border: 3px solid var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); }
+        .sertifikat { background: white; width: 500px; margin: 50px auto; padding: 30px; border: 10px double var(--primary); text-align: center; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background: var(--secondary); color: white; }
+        .badge { padding: 5px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; color: white; }
+        .kpr { background: var(--accent); }
+        .cash { background: var(--primary); }
+        .bertahap { background: #f39c12; }
+        .deadline-text { color: var(--danger); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">Creative Marketing Hub</div>
+    <div class="menu">
+        <button onclick="showSection('booking')">Input Booking</button>
+        <button onclick="loginAdmin()">Dashboard Admin</button>
+    </div>
+</nav>
+
+<section id="booking" class="active">
+    <div class="container">
+        <h2>Form Input Booking</h2>
+        <div class="preview-container">
+            <img id="preview-img" class="img-preview" src="" alt="Preview Proyek">
+        </div>
+
+        <div class="grid-form">
+            <div class="form-group">
+                <label>Pilih Proyek:</label>
+                <select id="proyek" onchange="updateUnit()">
+                    <option value="">-- Pilih Proyek --</option>
+                    <option value="Edelweis 2">Edelweis 2</option>
+                    <option value="Edelweis 3">Edelweis 3</option>
+                    <option value="Edelweis 4">Edelweis 4</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Pilih Tipe & Lantai:</label>
+                <select id="tipe" onchange="updateBlok()"></select>
+            </div>
+            <div class="form-group">
+                <label>Pilih Blok:</label>
+                <select id="blok" onchange="isiOtomatis()"></select>
+            </div>
+            <div class="form-group">
+                <label>Luas (LT m² / LB):</label>
+                <input type="text" id="luas" readonly style="background:#eee">
+            </div>
+            <div class="form-group">
+                <label>Harga Jual:</label>
+                <input type="text" id="harga" readonly style="background:#eee">
+            </div>
+            <div class="form-group">
+                <label>Nama Konsumen:</label>
+                <input type="text" id="nama_konsumen" placeholder="Nama Lengkap">
+            </div>
+            <div class="form-group">
+                <label>Nama Marketing:</label>
+                <input type="text" id="nama_marketing" placeholder="Marketing Penanggung Jawab">
+            </div>
+            <div class="form-group">
+                <label>Metode Pembayaran:</label>
+                <select id="pembayaran">
+                    <option value="Cash Keras">Cash Keras</option>
+                    <option value="Cash Bertahap">Cash Bertahap</option>
+                    <option id="opt-kpr" value="KPR" style="display:none;">KPR</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn-send" onclick="simpanBooking()">KONFIRMASI BOOKING</button>
+    </div>
+</section>
+
+<section id="admin">
+    <div class="container" style="max-width: 1200px;">
+        <h2>Dashboard Penjualan</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tgl Booking</th>
+                    <th>Konsumen</th>
+                    <th>Unit & Luas (LT m² / LB)</th>
+                    <th>Metode</th>
+                    <th>Tenggat (1 Minggu)</th>
+                    <th>Marketing</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="isiTabel"></tbody>
+        </table>
+    </div>
+</section>
+
+<div id="modalBukti" class="modal">
+    <div class="sertifikat">
+        <h1 style="color:var(--primary); margin:0;">BUKTI BOOKING</h1>
+        <hr>
+        <div id="print-area" style="text-align: left; padding: 20px;">
+            <p><strong>Nama Konsumen:</strong> <span id="b-nama"></span></p>
+            <p><strong>Unit:</strong> <span id="b-unit"></span></p>
+            <p><strong>Luas (LT m² / LB):</strong> <span id="b-luas"></span></p>
+            <p><strong>Harga:</strong> <span id="b-harga"></span></p>
+            <p><strong>Metode Bayar:</strong> <span id="b-bayar"></span></p>
+            <p><strong>Marketing:</strong> <span id="b-marketing"></span></p>
+            <p><strong>Tanggal Booking:</strong> <span id="b-tgl"></span></p>
+            <p class="deadline-text"><strong>Tenggat Waktu:</strong> <span id="b-deadline"></span></p>
+        </div>
+        <button onclick="location.reload()" class="btn-send">Tutup & Selesai</button>
+    </div>
+</div>
+
+<script>
+    const database_properti = {
+        "Edelweis 2": {
+            "1 Lantai": [
+                {b: "D2", h: 395000000, s: "47 m² / 40"},
+                {b: "D3", h: 660000000, s: "94 m² / 40"},
+                {b: "E1", h: 500000000, s: "61.5 m² / 40"},
+                {b: "E6", h: 385000000, s: "43 m² / 40"}
+            ],
+            "2 Lantai": [
+                {b: "D2", h: 577000000, s: "47 m² / 70"},
+                {b: "D3", h: 840000000, s: "94 m² / 70"},
+                {b: "E1", h: 660000000, s: "61.5 m² / 70"},
+                {b: "E6", h: 571000000, s: "43 m² / 70"}
+            ]
+        },
+        "Edelweis 3": {
+            "2 Lantai": [
+                {b: "A1", h: 875000000, s: "100 m² / 70"},
+                {b: "A2", h: 675000000, s: "62 m² / 70"},
+                {b: "A3", h: 675000000, s: "62 m² / 70"},
+                {b: "A4", h: 670000000, s: "61 m² / 70"},
+                {b: "A7", h: 665000000, s: "60 m² / 70"},
+                {b: "A9", h: 700000000, s: "61 m² / 70"},
+                {b: "C2", h: 720000000, s: "71 m² / 70"},
+                {b: "C3", h: 665000000, s: "60 m² / 70"},
+                {b: "C4", h: 665000000, s: "60 m² / 70"},
+                {b: "C5", h: 755000000, s: "78 m² / 70"}
+            ]
+        },
+        "Edelweis 4": {
+            "1 Lantai": [
+                {b: "A3", h: 369000000, s: "42 m² / 36"},
+                {b: "A7", h: 381000000, s: "45 m² / 36"},
+                {b: "B4", h: 377000000, s: "45 m² / 36"},
+                {b: "B5", h: 377000000, s: "45 m² / 36"},
+                {b: "B10", h: 369000000, s: "45 m² / 36"}
+            ],
+            "2 Lantai": [
+                {b: "A3", h: 484000000, s: "42 m² / 64"},
+                {b: "A7", h: 496000000, s: "45 m² / 64"},
+                {b: "B4", h: 492000000, s: "44 m² / 64"},
+                {b: "B5", h: 492000000, s: "44 m² / 64"},
+                {b: "B10", h: 484000000, s: "45 m² / 64"}
+            ]
+        }
+    };
+
+    const gambar_proyek = {
+        "Edelweis 2": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1000",
+        "Edelweis 3": "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000",
+        "Edelweis 4": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1000"
+    };
+
+    let storage = JSON.parse(localStorage.getItem('db_sales')) || [];
+
+    function showSection(id) {
+        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'admin') renderTable();
+    }
+
+    function updateUnit() {
+        const p = document.getElementById('proyek').value;
+        const tipe = document.getElementById('tipe');
+        document.getElementById('preview-img').style.display = p ? "inline-block" : "none";
+        if(p) document.getElementById('preview-img').src = gambar_proyek[p];
+        
+        // Pilihan KPR hanya muncul jika memilih Edelweis 4
+        document.getElementById('opt-kpr').style.display = (p === "Edelweis 4") ? "block" : "none";
+        
+        tipe.innerHTML = '<option value="">-- Pilih Lantai --</option>';
+        if(p) Object.keys(database_properti[p]).forEach(t => tipe.innerHTML += `<option value="${t}">${t}</option>`);
+        updateBlok();
+    }
+
+    function updateBlok() {
+        const p = document.getElementById('proyek').value;
+        const t = document.getElementById('tipe').value;
+        const blokSelect = document.getElementById('blok');
+        blokSelect.innerHTML = '<option value="">-- Pilih Blok --</option>';
+        if(p && t) {
+            database_properti[p][t].forEach(item => {
+                const isBooked = storage.some(s => s.proyek === p && s.blok === item.b && s.tipe === t);
+                if(!isBooked) blokSelect.innerHTML += `<option value="${item.b}">${item.b}</option>`;
+            });
+        }
+        isiOtomatis();
+    }
+
+    function isiOtomatis() {
+        const p = document.getElementById('proyek').value;
+        const t = document.getElementById('tipe').value;
+        const b = document.getElementById('blok').value;
+        if(p && t && b) {
+            const data = database_properti[p][t].find(x => x.b === b);
+            document.getElementById('harga').value = "Rp " + data.h.toLocaleString('id-ID');
+            document.getElementById('luas').value = data.s;
+        } else {
+            document.getElementById('harga').value = "";
+            document.getElementById('luas').value = "";
+        }
+    }
+
+    function simpanBooking() {
+        const today = new Date();
+        const nextWeek = new Date();
+        nextWeek.setDate(today.getDate() + 7);
+
+        const data = {
+            tgl: today.toLocaleDateString('id-ID'),
+            deadline: nextWeek.toLocaleDateString('id-ID'),
+            nama: document.getElementById('nama_konsumen').value,
+            proyek: document.getElementById('proyek').value,
+            tipe: document.getElementById('tipe').value,
+            blok: document.getElementById('blok').value,
+            harga: document.getElementById('harga').value,
+            luas: document.getElementById('luas').value,
+            bayar: document.getElementById('pembayaran').value,
+            marketing: document.getElementById('nama_marketing').value
+        };
+
+        if(!data.nama || !data.proyek || !data.blok || !data.marketing) return alert("Lengkapi data!");
+
+        storage.push(data);
+        localStorage.setItem('db_sales', JSON.stringify(storage));
+
+        document.getElementById('b-nama').innerText = data.nama;
+        document.getElementById('b-unit').innerText = `${data.proyek} - ${data.blok} (${data.tipe})`;
+        document.getElementById('b-luas').innerText = data.luas;
+        document.getElementById('b-harga').innerText = data.harga;
+        document.getElementById('b-bayar').innerText = data.bayar;
+        document.getElementById('b-marketing').innerText = data.marketing;
+        document.getElementById('b-tgl').innerText = data.tgl;
+        document.getElementById('b-deadline').innerText = data.deadline;
+        document.getElementById('modalBukti').style.display = "block";
+    }
+
+    function loginAdmin() {
+        if(prompt("Password Admin:") === "admin123") showSection('admin');
+    }
+
+    function renderTable() {
+        const t = document.getElementById('isiTabel');
+        t.innerHTML = "";
+        storage.forEach((item, index) => {
+            let cls = item.bayar === "KPR" ? "kpr" : (item.bayar === "Cash Keras" ? "cash" : "bertahap");
+            t.innerHTML += `<tr>
+                <td>${item.tgl}</td>
+                <td>${item.nama}</td>
+                <td><b>${item.proyek} ${item.blok}</b><br><small>LT m² / LB: ${item.luas}</small></td>
+                <td><span class="badge ${cls}">${item.bayar}</span></td>
+                <td class="deadline-text">${item.deadline}</td>
+                <td>${item.marketing}</td>
+                <td><button onclick="hapus(${index})">Hapus</button></td>
+            </tr>`;
+        });
+    }
+
+    function hapus(i) {
+        if(confirm("Hapus data? Unit akan tersedia kembali.")) {
+            storage.splice(i, 1);
+            localStorage.setItem('db_sales', JSON.stringify(storage));
+            renderTable();
+            updateBlok();
+        }
+    }
+</script>
+</body>
+</html>
